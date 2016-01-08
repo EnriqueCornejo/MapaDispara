@@ -1,0 +1,56 @@
+	 // Tamaño del svg
+	 var w = 1200;
+	 var h = 600;
+
+	 // Creamos el mapa
+	 // Añadimos el elemento svg al id datavis
+	 var mapa = d3.select("#datavis").append("svg:svg")
+		      .attr("width", w)
+		      .attr("height", h);
+
+	 d3.json("recursos/comunidadesDatos.js", function(error, comunidades) {
+	     if (error) return console.error(error);
+
+
+	     var projection = d3.geo.mercator()
+				.scale(2600)
+				.translate([w/2 - 500, h/2 +1775]);
+	     
+	     var path = d3.geo.path().projection(projection);
+
+
+	     var limites = d3.geo.bounds(comunidades);
+	     
+	     // La translación por defecto de la proyección
+	     
+	     console.log(comunidades.features);
+	     
+	
+	     mapa.selectAll("path")
+		 .data(comunidades.features)
+		 .enter()
+		 .append("svg:path")
+		 .attr("class", "comunidad")
+		 .attr("id", function(feature) {return feature.properties.nombre.replace(/\s/g,'');})
+		 .attr("d", path);
+
+
+    
+	 });
+
+	 // Un título
+	 var titulo = mapa.append("text")
+			  .html("SIMULADOR ELECTORAL")
+			  .attr("x", w - 400)
+			  .attr("y",  60);
+	 console.log(titulo);
+
+	 // Y un borde
+	 var borderPath = mapa.append("rect")
+			      .attr("x", 0)
+			      .attr("y", 0)
+			      .attr("height", h)
+			      .attr("width", w)
+			      .style("stroke", "#000")
+			      .style("fill", "none")
+			      .style("stroke-width", "1px");
