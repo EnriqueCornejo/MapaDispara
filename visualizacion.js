@@ -22,6 +22,8 @@ var projection = d3.geo.mercator()
 var path = d3.geo.path().projection(projection);
 
 // Cargamos la capa de comunidades
+
+var objetoComunidadActiva = {};
 d3.json("recursos/comunidadesDatos.js", function(error, comunidades) {
     if (error) return console.error(error);
     // Y le añadimos las features
@@ -35,69 +37,76 @@ d3.json("recursos/comunidadesDatos.js", function(error, comunidades) {
 	.style("fill", "white") // Sin fill no deja seleccionar
 	.on("click", function(feature) {
 	    regionActiva = feature.properties.nombre;
-	    console.log("Región Activa: " + regionActiva);
-	    console.log("Datos: ");
-	    console.log(feature.properties)
+	    objetoComunidadActiva = feature.properties;
+	    console.log("Datos activos: "); 
+	    console.log(objetoComunidadActiva)
 	    pintaDivVisualizacion();
 	});
 })
 
-// d3.json("recursos/provinciasDatos.js", function(error, provincias) {
-//     if (error) return console.error(error);
-//     // Y le añadimos las features
-//     mapa.selectAll("path")
-// 	.data(provincias.features)
-// 	.enter()
-// 	.append("svg:path")
-// 	.attr("class", "provincia")
-// 	.attr("id", function(feature) {return feature.properties.nombre.replace(/\s/g,'');})
-// 	.attr("d", path)
-// 	.style("fill", "white")
-//     // Sin fill no deja seleccionar
-// 	.on("click", function(feature) {
-// 	    regionActiva = feature.properties.nombre;
-// 	    console.log("Región Activa: " + regionActiva);
-// 	});
-// })
 
 
-
-// Click en comunidades
-
-
-// Y un borde
-var borderPath = mapa.append("rect")
+// FONDO MAPA
+var fondo = mapa.append("rect")
     .attr("x", 0)
     .attr("y", 0)
     .attr("height", h)
     .attr("width", w)
     .style("stroke", "#000")
     .style("fill", "000")
-    .style("opacity", 0.0)
-    .style("stroke-width", "1px")
+    .style("opacity", 0.05)
+    .style("stroke-width", "3px")
     .on("click", function() {
 	regionActiva = "España";
 	pintaDivVisualizacion();
     });
+// FONDO
+
+
+var visualizacion = d3.select("#visualizacion")
+    .append("svg")
+    .attr("width", w * 2/3)
+    .attr("height",h);
+
+var fondo2 = visualizacion
+    .append("rect")
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("height", h)
+    .attr("width", w * 2/3)
+    .style("fill", "000")
+    .style("opacity", 0.05)
+    .style("stroke-width", "3px");
+
+visGeneral = function() {
+    console.log("VISUALIZACION PARA TODA ESPAÑA");
+}
 
 
 
 pintaDivVisualizacion = function() {
-    d3.select("#visualizacion")
-	.html("")
-	.append("div")
-	.attr("id", "vis")
-	.html(
-	    "<div id='region'>" + regionActiva + "</div>" +
-	    	"<div id='id'>" + regionActiva.replace(/\s/g,'') + "</div>" +
-		"<div id='datos'><table>" +
-			"</table>"
-	);
-    
     // Redibujamos las regiones de blanco, pintamos la seleccionada de rojo
     mapa.selectAll("path").style("fill", "white");
     d3.select("#" + regionActiva.replace(/\s/g,''))
-	.style("fill", "red")
+	.style("fill", "red");
+
+    if (regionActiva == "España"){
+	visGeneral();
+	return;
+    }
+
+
+    var votosPartidos = [
+	[
+	    "AJU", objetoComunidadActiva["AJU"]
+	],[
+	    "AVANT", objetoComunidadActiva["AVANT"]
+	],[
+	    "CCD", objetoComunidadActiva["CCD"]
+	]
+    ];
+
+    console.log(votosPartidos);
 }
 
 pintaDivVisualizacion()
